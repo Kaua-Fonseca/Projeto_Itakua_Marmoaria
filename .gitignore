@@ -1,0 +1,46 @@
+itakua-backend/HELP.md
+target/
+
+### Maven Wrapper ###
+.mvn/wrapper/maven-wrapper.jar
+
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.ipr
+*.iml
+
+### VS Code ###
+.vscode/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Arquivos sensíveis ###
+src/main/resources/application-local.properties
+src/main/resources/application-dev.properties
+
+# PostgreSQL local
+**/application.properties
+
+# Maven
+**/target/

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marmoraria Itakuá — Sistema de Orçamentos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS separado por responsabilidade -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/modals.css">
+</head>
+
+<!--
+  data-api-url: URL do backend.
+  Em produção, troque para a URL real (ex: https://api.seudominio.com.br).
+  Em dev, pode remover o atributo — o padrão é http://localhost:8080.
+-->
+<body data-api-url="http://localhost:8080">
+
+<aside class="sidebar">
+    <div class="s-logo">
+        <div class="s-logo-tag">SISTEMA ERP</div>
+        <div class="s-logo-name">Itakuá</div>
+        <div class="s-logo-sub">Gestão de Orçamentos</div>
+    </div>
+    <nav class="s-nav">
+        <div class="s-sec">Principal</div>
+        <div class="nav-item active" onclick="nav('dashboard')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            Dashboard
+        </div>
+        <div class="s-sec">Cadastros</div>
+        <div class="nav-item" onclick="nav('clientes')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Clientes
+        </div>
+        <div class="nav-item" onclick="nav('materiais')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                <polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+            </svg>
+            Materiais
+        </div>
+        <div class="s-sec">Operações</div>
+        <div class="nav-item" onclick="nav('orcamentos')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Orçamentos
+        </div>
+    </nav>
+    <div class="s-foot">v1.2</div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <span id="api-status" class="tag t-gray" style="font-size:11px">⏳ verificando API...</span>
+            <span class="badge-date" id="badge-date"></span>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="sec-hdr">
+                <div>
+                    <div class="sec-title">Visão Geral</div>
+                    <div class="sec-sub">Resumo das operações e faturamento</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="loadDashboard()">↻ Atualizar</button>
+            </div>
+            <div class="dash-grid">
+                <div class="dash-card dc-primary">
+                    <div class="dash-ico"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+                    <div class="dash-label">Clientes</div>
+                    <div class="dash-value" id="d-clientes">—</div>
+                    <div class="dash-sub">Cadastrados no sistema</div>
+                </div>
+                <div class="dash-card dc-accent">
+                    <div class="dash-ico"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                    <div class="dash-label">Faturamento</div>
+                    <div class="dash-value" id="d-fat">—</div>
+                    <div class="dash-sub">Total de orçamentos emitidos</div>
+                </div>
+                <div class="dash-card dc-gold">
+                    <div class="dash-ico"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                    <div class="dash-label">Orçamentos</div>
+                    <div class="dash-value" id="d-orc">—</div>
+                    <div class="dash-sub">Propostas geradas</div>
+                </div>
+                <div class="dash-card dc-teal">
+                    <div class="dash-ico"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg></div>
+                    <div class="dash-label">Materiais</div>
+                    <div class="dash-value" id="d-mat">—</div>
+                    <div class="dash-sub">Opções cadastradas</div>
+                </div>
+            </div>
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-hdr"><span class="card-title">Últimos Orçamentos</span></div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Nº</th><th>Cliente</th><th>Data</th><th>Status</th><th>Valor</th></tr></thead>
+                            <tbody id="dash-orc-tbody"><tr><td colspan="5" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-hdr"><span class="card-title">Materiais Recentes</span></div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead><tr><th>Material</th><th>Preço/m²</th></tr></thead>
+                            <tbody id="dash-mat-tbody"><tr><td colspan="2" class="empty-state">Carregando...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CLIENTES ===== -->
+        <div class="tab-content" id="tab-clientes">
+            <div class="sec-hdr">
+                <div><div class="sec-title">Clientes</div><div class="sec-sub">Gerenciamento da carteira de clientes</div></div>
+                <div style="display:flex;gap:12px;align-items:center">
+                    <input type="search" id="search-cli" placeholder="Buscar cliente..." class="search-input" oninput="filterClientes()">
+                    <button class="btn btn-primary" onclick="openModalCliente()">+ Novo Cliente</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-hdr">
+                    <span class="card-title">Lista de Clientes</span>
+                    <button class="btn btn-outline btn-sm" onclick="loadClientes()">↻</button>
+                </div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead><tr><th>ID</th><th>Nome</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead>
+                        <tbody id="tbody-cli">
+                        <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">Nenhum cliente</div></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MATERIAIS ===== -->
+        <div class="tab-content" id="tab-materiais">
+            <div class="sec-hdr">
+                <div><div class="sec-title">Materiais</div><div class="sec-sub">Catálogo de pedras e valores</div></div>
+                <button class="btn btn-primary" onclick="openModalMaterial()">+ Novo Material</button>
+            </div>
+            <div class="card">
+                <div class="card-hdr">
+                    <span class="card-title">Lista de Materiais</span>
+                    <button class="btn btn-outline btn-sm" onclick="loadMateriais()">↻</button>
+                </div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead><tr><th>ID</th><th>Nome</th><th>Preço / m²</th><th>Observação</th><th>Ações</th></tr></thead>
+                        <tbody id="tbody-mat">
+                        <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🪨</div><div class="empty-text">Nenhum material</div></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ORÇAMENTOS ===== -->
+        <div class="tab-content" id="tab-orcamentos">
+            <div class="sec-hdr">
+                <div><div class="sec-title">Orçamentos</div><div class="sec-sub">Gestão de propostas comerciais</div></div>
+                <button class="btn btn-primary" onclick="openModalOrcamento()">+ Novo Orçamento</button>
+            </div>
+            <div class="card">
+                <div class="card-hdr">
+                    <span class="card-title">Histórico de Orçamentos</span>
+                    <button class="btn btn-outline btn-sm" onclick="loadOrcamentos()">↻</button>
+                </div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead><tr><th>Nº</th><th>Cliente</th><th>Data</th><th>Área Total</th><th>Valor Total</th><th>Status</th><th>Prazo</th><th>Ações</th></tr></thead>
+                        <tbody id="tbody-orc">
+                        <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Nenhum orçamento</div></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</main>
+
+<!-- ===== MODAL: CLIENTE ===== -->
+<div class="modal-overlay" id="m-cliente">
+    <div class="modal" style="max-width:520px">
+        <div class="modal-hdr">
+            <div class="modal-title" id="m-cli-title">Novo Cliente</div>
+            <button class="modal-close" onclick="closeModal('m-cliente')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="alert-cli"></div>
+            <input type="hidden" id="cli-id">
+            <div class="form-grid">
+                <div class="fg full"><label>Nome *</label><input id="cli-nome" placeholder="Nome completo"></div>
+                <div class="fg full"><label>Endereço</label><input id="cli-end" placeholder="Rua, nº, bairro, cidade"></div>
+                <div class="fg"><label>Telefone</label><input id="cli-tel" placeholder="(00) 00000-0000" oninput="maskPhone(this)"></div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-outline" onclick="closeModal('m-cliente')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-cli" onclick="salvarCliente()">Salvar Cliente</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: MATERIAL ===== -->
+<div class="modal-overlay" id="m-material">
+    <div class="modal" style="max-width:520px">
+        <div class="modal-hdr">
+            <div class="modal-title" id="m-mat-title">Novo Material</div>
+            <button class="modal-close" onclick="closeModal('m-material')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="alert-mat"></div>
+            <input type="hidden" id="mat-id">
+            <div class="form-grid">
+                <div class="fg full"><label>Nome do Material *</label><input id="mat-nome" placeholder="Ex: Granito Preto São Gabriel"></div>
+                <div class="fg"><label>Preço por m² (R$) *</label><input type="number" id="mat-preco" placeholder="0.00" min="0" step="0.01"></div>
+                <div class="fg full"><label>Observação</label><input id="mat-obs" placeholder="Cor, acabamento, origem..."></div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-outline" onclick="closeModal('m-material')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-mat" onclick="salvarMaterial()">Salvar Material</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: ORÇAMENTO ===== -->
+<div class="modal-overlay" id="m-orcamento">
+    <div class="modal" style="max-width:960px">
+        <div class="modal-hdr">
+            <div class="modal-title" id="m-orc-title">Novo Orçamento</div>
+            <button class="modal-close" onclick="closeModal('m-orcamento')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="alert-orc"></div>
+            <input type="hidden" id="orc-id">
+
+            <div class="form-grid mb-16">
+                <div class="fg">
+                    <label>Cliente *</label>
+                    <select id="orc-cliente"><option value="">Selecione...</option></select>
+                </div>
+                <div class="fg">
+                    <label>Material Único (Padrão)</label>
+                    <select id="orc-mat-unico" onchange="calcTotal()"><option value="">Nenhum / Por tipo</option></select>
+                </div>
+                <div class="fg">
+                    <label>Prazo (dias úteis)</label>
+                    <input type="number" id="orc-prazo" placeholder="0" min="0">
+                </div>
+                <div class="fg">
+                    <label>Taxa Entrega (R$)</label>
+                    <input type="number" id="orc-taxa" placeholder="0.00" min="0" step="0.01" oninput="calcTotal()">
+                </div>
+                <div class="fg">
+                    <label>Status</label>
+                    <select id="orc-status">
+                        <option value="PENDENTE">Pendente</option>
+                        <option value="APROVADO">Aprovado</option>
+                        <option value="PRODUCAO">Em Produção</option>
+                        <option value="FINALIZADO">Finalizado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid mb-16">
+                <div class="fg full">
+                    <label>Materiais p/ Pingadeiras (Comparação)</label>
+                    <div id="sel-ping-mats" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
+                    <select id="orc-ping-mat-add" style="max-width:300px;margin-top:6px" onchange="addMatPing()">
+                        <option value="">+ Adicionar material para pingadeira</option>
+                    </select>
+                </div>
+                <div class="fg full">
+                    <label>Materiais p/ Soleiras (Comparação)</label>
+                    <div id="sel-sol-mats" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
+                    <select id="orc-sol-mat-add" style="max-width:300px;margin-top:6px" onchange="addMatSol()">
+                        <option value="">+ Adicionar material para soleira</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Pingadeiras -->
+            <div style="margin-bottom:20px">
+                <div class="orc-sec-title">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    Pingadeiras
+                </div>
+                <div class="items-header item-row-7">
+                    <span>Nº Peça</span><span>Qtd</span><span>Compr (m)</span><span>Larg (m)</span><span>Tipo Corte</span><span>Friso C.P.</span><span></span>
+                </div>
+                <div id="rows-ping"></div>
+                <button class="btn btn-outline btn-sm mt-10" onclick="addItem('ping')">+ Adicionar Pingadeira</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Soleiras -->
+            <div style="margin-bottom:20px">
+                <div class="orc-sec-title">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/></svg>
+                    Soleiras
+                </div>
+                <div class="items-header item-row-7">
+                    <span>Nº Peça</span><span>Qtd</span><span>Compr (m)</span><span>Larg (m)</span><span>Tipo Corte</span><span>Friso C.P.</span><span></span>
+                </div>
+                <div id="rows-sol"></div>
+                <button class="btn btn-outline btn-sm mt-10" onclick="addItem('sol')">+ Adicionar Soleira</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="info-box">
+                <strong>ℹ Regras de Cálculo:</strong><br>
+                • O back-end adiciona automaticamente <strong>+3cm</strong> nas medidas de corte.<br>
+                • Numeração das peças gerada automaticamente pelo servidor.
+            </div>
+
+            <div class="total-bar">
+                <span>Total Estimado (Material Único)</span>
+                <strong id="orc-total-disp">—</strong>
+            </div>
+
+            <div class="fg" style="margin-top:16px">
+                <label>Observações Adicionais</label>
+                <textarea id="orc-obs" rows="2" style="resize:vertical;min-height:60px"
+                          placeholder="Condições de pagamento, detalhes de entrega..."></textarea>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-outline" onclick="closeModal('m-orcamento')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-orc" onclick="salvarOrcamento()">Gerar Orçamento</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: VER ORÇAMENTO ===== -->
+<div class="modal-overlay" id="m-ver-orc">
+    <div class="modal" style="max-width:880px">
+        <div class="modal-hdr">
+            <div class="modal-title" id="m-ver-title">Detalhes do Orçamento</div>
+            <button class="modal-close" onclick="closeModal('m-ver-orc')">✕</button>
+        </div>
+        <div class="modal-body" id="m-ver-body"></div>
+        <div class="modal-foot">
+            <button class="btn btn-outline" onclick="closeModal('m-ver-orc')">Fechar</button>
+            <button class="btn btn-danger" onclick="baixarPDF()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Exportar PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts em ordem: estado global → utilitários → módulos → navegação -->
+<script src="../script/state.js"></script>
+<script src="../script/api.js"></script>
+<script src="../script/dashboard.js"></script>
+<script src="../script/clientes.js"></script>
+<script src="../script/materiais.js"></script>
+<script src="../script/orcamentos.js"></script>
+<script src="../script/nav.js"></script>
+
+</body>
+</html>

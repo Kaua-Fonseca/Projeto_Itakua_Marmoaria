@@ -1,0 +1,12 @@
+# colocar as suas informações
+
+# spring.application.name=itakua
+
+#spring.datasource.url=${DB_URL}
+# spring.datasource.username=${DB_USER}
+# spring.datasource.password=${DB_PASSWORD}
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.generate-ddl=true
+spring.jpa.hibernate.ddl-auto=update

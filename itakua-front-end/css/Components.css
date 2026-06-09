@@ -1,0 +1,67 @@
+/* ========= BOTÕES ========= */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px; border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: var(--danger-hover); }
+.btn-outline { background: transparent; border: 1px solid var(--border-strong); color: var(--text-main); }
+.btn-outline:hover { background: var(--bg-body); border-color: var(--text-muted); }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-ghost-red { background: transparent; color: var(--danger); }
+.btn-ghost-red:hover { background: var(--danger-light); }
+
+/* ========= CARDS ========= */
+.card { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden; }
+.card-hdr { padding: 18px 24px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; background: #fdfdfd; }
+.card-title { font-size: 16px; font-weight: 600; color: var(--primary); }
+.card-body { padding: 24px; }
+
+/* ========= DASHBOARD ========= */
+.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
+.dash-card {
+  background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-light);
+  padding: 24px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: transform 0.2s;
+}
+.dash-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.dash-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.dc-primary::before { background: var(--primary); }
+.dc-accent::before  { background: var(--accent); }
+.dc-gold::before    { background: #f59e0b; }
+.dc-teal::before    { background: #0ea5e9; }
+.dash-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+.dash-value { font-size: 32px; font-weight: 700; color: var(--primary); line-height: 1; letter-spacing: -1px; }
+.dash-sub { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.dash-ico { position: absolute; right: 24px; top: 24px; color: var(--text-muted); opacity: 0.3; }
+
+/* ========= TABELAS ========= */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th {
+  background: var(--bg-body); color: var(--text-muted); padding: 14px 24px;
+  text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; border-bottom: 1px solid var(--border-strong); white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
+tbody tr:hover { background: #f8fafc; }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 14px 24px; color: var(--text-main); }
+
+/* ========= FORMULÁRIOS ========= */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.fg { display: flex; flex-direction: column; gap: 6px; }
+.fg.full { grid-column: 1 / -1; }
+label { font-size: 12px; font-weight: 600; color: var(--text-main); }
+input, select, textarea {
+  font-family: inherit; font-size: 14px; padding: 10px 14px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text-main); transition: all 0.2s; outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+input::placeholder, textarea::placeholder { color: #94a3b8; }
+.search-input { width: 250px; padding: 8px 14px; font-size: 13px; border-radius: 20px; }
